@@ -3,8 +3,6 @@ import argparse
 from detectors import detect_in_video, detect_in_image
 from yolo import YOLO
 
-# FLAGS = None
-
 if __name__ == '__main__':
     # class YOLO defines the default value, so suppress any default here
     parser = argparse.ArgumentParser(argument_default=argparse.SUPPRESS)

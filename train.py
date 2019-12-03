@@ -1,6 +1,7 @@
 """
 Retrain the YOLO model for your own dataset.
 """
+import time
 
 import keras.backend as K
 import numpy as np
@@ -15,7 +16,7 @@ from yolo3.utils import get_random_data
 
 def _main():
     annotation_path = 'train.txt'
-    log_dir = 'logs/000/'
+    log_dir = 'logs/train_{}'.format(time.time())
     classes_path = 'model_data/voc_classes.txt'
     anchors_path = 'model_data/yolo_anchors.txt'
     class_names = get_classes(classes_path)
@@ -100,7 +101,7 @@ def get_classes(classes_path):
 
 
 def get_anchors(anchors_path):
-    '''loads the anchors from a file'''
+    """loads the anchors from a file"""
     with open(anchors_path) as f:
         anchors = f.readline()
     anchors = [float(x) for x in anchors.split(',')]
@@ -115,7 +116,7 @@ def create_model(input_shape, anchors, num_classes, load_pretrained=True, freeze
     h, w = input_shape
     num_anchors = len(anchors)
 
-    y_true = [Input(shape=(h // {0: 32, 1: 16, 2: 8}[l], w // {0: 32, 1: 16, 2: 8}[l], \
+    y_true = [Input(shape=(h // {0: 32, 1: 16, 2: 8}[l], w // {0: 32, 1: 16, 2: 8}[l],
                            num_anchors // 3, num_classes + 5)) for l in range(3)]
 
     model_body = yolo_body(image_input, num_anchors // 3, num_classes)
@@ -146,7 +147,7 @@ def create_tiny_model(input_shape, anchors, num_classes, load_pretrained=True, f
     h, w = input_shape
     num_anchors = len(anchors)
 
-    y_true = [Input(shape=(h // {0: 32, 1: 16}[l], w // {0: 32, 1: 16}[l], \
+    y_true = [Input(shape=(h // {0: 32, 1: 16}[l], w // {0: 32, 1: 16}[l],
                            num_anchors // 2, num_classes + 5)) for l in range(2)]
 
     model_body = tiny_yolo_body(image_input, num_anchors // 2, num_classes)
