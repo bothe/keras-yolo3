@@ -88,7 +88,10 @@ def yolo_body(inputs, num_anchors, num_classes):
     x = Concatenate()([x, darknet.layers[92].output])
     x, y3 = make_last_layers(x, 128, num_anchors * (num_classes + 5))
 
-    return Model(inputs, [y1, y2, y3])
+    yolo_body_model = Model(inputs, [y1, y2, y3])
+    print("Got the yolo v3 model")
+    yolo_body_model.summary(line_length=150)
+    return yolo_body_model
 
 
 def tiny_yolo_body(inputs, num_anchors, num_classes):
@@ -121,7 +124,10 @@ def tiny_yolo_body(inputs, num_anchors, num_classes):
         DarknetConv2D_BN_Leaky(256, (3, 3)),
         DarknetConv2D(num_anchors * (num_classes + 5), (1, 1)))([x2, x1])
 
-    return Model(inputs, [y1, y2])
+    tiny_yolo_body_model = Model(inputs, [y1, y2])
+    print("Got the yolo v3 tiny model")
+    tiny_yolo_body_model.summary(line_length=150)
+    return tiny_yolo_body_model
 
 
 def yolo_head(feats, anchors, num_classes, input_shape, calc_loss=False):
