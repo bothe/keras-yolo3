@@ -42,6 +42,7 @@ class YOLO(object):
         self.class_names = self._get_class()
         self.anchors = self._get_anchors()
         self.sess = K.get_session()
+        self.print_summary = False
         self.boxes, self.scores, self.classes = self.generate
 
     def _get_class(self):
@@ -69,12 +70,14 @@ class YOLO(object):
         is_tiny_version = num_anchors == 6  # default setting
         try:
             self.yolo_model = load_model(model_path, compile=False)
-            self.yolo_model.summary(line_length=150)
+            if self.print_summary:
+                self.yolo_model.summary(line_length=150)
         except:
             self.yolo_model = tiny_yolo_body(Input(shape=(None, None, 3)), num_anchors // 2, num_classes) \
                 if is_tiny_version else yolo_body(Input(shape=(None, None, 3)), num_anchors // 3, num_classes)
             self.yolo_model.load_weights(self.model_path)  # make sure model, anchors and classes match
-            self.yolo_model.summary(line_length=150)
+            if self.print_summary:
+                self.yolo_model.summary(line_length=150)
         else:
             assert self.yolo_model.layers[-1].output_shape[-1] == \
                    num_anchors / len(self.yolo_model.output) * (num_classes + 5), \
