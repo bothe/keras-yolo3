@@ -37,6 +37,9 @@ class YOLO(object):
             return "Unrecognized attribute name '" + n + "'"
 
     def __init__(self, **kwargs):
+        # self.model_path = self.model_path
+        # self.anchors_path = self.anchors_path
+        # self.classes_path = self.classes_path
         self.__dict__.update(self._defaults)  # set up default values
         self.__dict__.update(kwargs)  # and update with user overrides
         self.class_names = self._get_class()
@@ -78,7 +81,7 @@ class YOLO(object):
                    num_anchors / len(self.yolo_model.output) * (num_classes + 5), \
                 'Mismatch between model and given anchor and class sizes'
 
-        print('{} model, anchors, and classes loaded.'.format(model_path))
+        print('{} model, {} anchors, and {} classes loaded.'.format(model_path, num_anchors, num_classes))
 
         # Generate colors for drawing bounding boxes.
         hsv_tuples = [(x / len(self.class_names), 1., 1.)
