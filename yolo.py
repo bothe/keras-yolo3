@@ -8,12 +8,14 @@ import os
 from timeit import default_timer as timer
 
 import numpy as np
+import tensorflow as tf
 from PIL import ImageFont, ImageDraw
 from keras import backend as K
 from keras.layers import Input
 from keras.models import load_model
 from keras.utils import multi_gpu_model
 
+from utils.freeze_convert_to_pb import freeze_session
 from yolo3.model import yolo_eval, yolo_body, tiny_yolo_body
 from yolo3.utils import letterbox_image
 
@@ -27,6 +29,8 @@ class YOLO(object):
         "iou": 0.45,
         "model_image_size": (416, 416),
         "gpu_num": 1,
+        "print_summary": False,
+        "save_pb": False,
     }
 
     @classmethod
@@ -42,7 +46,6 @@ class YOLO(object):
         self.class_names = self._get_class()
         self.anchors = self._get_anchors()
         self.sess = K.get_session()
-        self.print_summary = False
         self.boxes, self.scores, self.classes = self.generate
 
     def _get_class(self):
@@ -103,6 +106,14 @@ class YOLO(object):
         boxes, scores, classes = yolo_eval(self.yolo_model.output, self.anchors,
                                            len(self.class_names), self.input_image_shape,
                                            score_threshold=self.score, iou_threshold=self.iou)
+
+        if self.save_pb:
+            # Freeze and save model to tf_model .pb file
+            frozen_graph = freeze_session(K.get_session(),
+                                          output_names=[out.op.name for out in self.yolo_model.outputs])
+            tf.train.write_graph(frozen_graph, "pb_models",
+                                 "{}.pb".format(self.model_path.split('/')[1].split('.')[0]), as_text=False)
+
         return boxes, scores, classes
 
     def detect_image(self, image):

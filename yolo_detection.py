@@ -3,6 +3,24 @@ import argparse
 from detectors import detect_in_video, detect_in_image
 from yolo import YOLO
 
+
+def main():
+    if FLAGS.save_pb:
+        return
+    if FLAGS.image:
+        """
+        Image detection mode, disregard any remaining command line arguments
+        """
+        print("Image detection mode")
+        if "input" in FLAGS:
+            print(" Ignoring remaining command line arguments: " + FLAGS.input + "," + FLAGS.output)
+        detect_in_image(yolo)
+    elif "input" in FLAGS:
+        detect_in_video(yolo, FLAGS.input, FLAGS.output)
+    else:
+        print("Must specify at least video_input_path.  See usage with --help.")
+
+
 if __name__ == '__main__':
     # class YOLO defines the default value, so suppress any default here
     parser = argparse.ArgumentParser(argument_default=argparse.SUPPRESS)
@@ -30,6 +48,16 @@ if __name__ == '__main__':
     )
 
     parser.add_argument(
+        '--print_summary', type=bool, default=False,
+        help='Print summary of the models, default ' + str(YOLO.get_defaults("print_summary"))
+    )
+
+    parser.add_argument(
+        '--save_pb', type=bool, default=False,
+        help='Save the tf model in pb format, default ' + str(YOLO.get_defaults("save_pb"))
+    )
+
+    parser.add_argument(
         '--image', default=False, action="store_true",
         help='Image detection mode, will ignore all positional arguments'
     )
@@ -48,15 +76,4 @@ if __name__ == '__main__':
 
     FLAGS = parser.parse_args()
     yolo = YOLO(**vars(FLAGS))
-    if FLAGS.image:
-        """
-        Image detection mode, disregard any remaining command line arguments
-        """
-        print("Image detection mode")
-        if "input" in FLAGS:
-            print(" Ignoring remaining command line arguments: " + FLAGS.input + "," + FLAGS.output)
-        detect_in_image(yolo)
-    elif "input" in FLAGS:
-        detect_in_video(yolo, FLAGS.input, FLAGS.output)
-    else:
-        print("Must specify at least video_input_path.  See usage with --help.")
+    main()
