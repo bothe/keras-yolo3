@@ -1,19 +1,18 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import tensorflow as tf
-from tensorflow.python.platform import gfile
 
 from inference.img_reader import read_img_infer
 
+tiny_yolo = False
 file = 'test_data/frame66.jpg'
 model_image_size = (416, 416)
 infer_image, org_image = read_img_infer(file, model_image_size)
-tiny_yolo = False
 
 if tiny_yolo:
-    f = gfile.FastGFile("pb_models/yolov3-tiny.pb", 'rb')
+    f = tf.gfile.GFile("pb_models/yolov3-tiny.pb", 'rb')
 else:
-    f = gfile.FastGFile("pb_models/yolo.pb", 'rb')
+    f = tf.gfile.GFile("pb_models/yolo.pb", 'rb')
 
 graph_def = tf.GraphDef()
 # Parses a serialized binary message into the current message.
@@ -33,5 +32,3 @@ else:
                       sess.graph.get_tensor_by_name('import/conv2d_75/BiasAdd:0')]
 
 predictions = sess.run(output_tensors, {'import/input_1:0': infer_image})
-
-
