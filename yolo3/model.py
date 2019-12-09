@@ -153,7 +153,7 @@ def yolo_head(feats, anchors, num_classes, input_shape, calc_loss=False):
     box_confidence = K.sigmoid(feats[..., 4:5])
     box_class_probs = K.sigmoid(feats[..., 5:])
 
-    if calc_loss == True:
+    if calc_loss:
         return grid, feats, box_xy, box_wh
     return box_xy, box_wh, box_confidence, box_class_probs
 

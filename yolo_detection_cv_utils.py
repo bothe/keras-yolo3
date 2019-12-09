@@ -1,3 +1,4 @@
+import os
 import time
 
 import cv2
@@ -54,3 +55,11 @@ def load_classes(file):
     with open(file, "r") as f:
         classes = [line.strip() for line in f.readlines()]
     return classes
+
+
+def get_anchors(anchors_path):
+    anchors_path = os.path.expanduser(anchors_path)
+    with open(anchors_path) as f:
+        anchors = f.readline()
+    anchors = [float(x) for x in anchors.split(',')]
+    return np.array(anchors).reshape(-1, 2)

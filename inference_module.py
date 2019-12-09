@@ -4,12 +4,13 @@ import tensorflow as tf
 
 from inference.box_predictor import post_process
 from inference.img_reader import read_img_infer
+from yolo3.model import yolo_eval
+from yolo_detection_cv_utils import get_anchors, load_classes
 
 # Load names of classes
-classesFile = "model_data/coco_classes.txt"
-classes = None
-with open(classesFile, 'rt') as f:
-    classes = f.read().rstrip('\n').split('\n')
+classes = load_classes("model_data/coco_classes.txt")
+anchors = get_anchors('model_data/yolo_anchors.txt')
+
 
 tiny_yolo = False
 file = 'test_data/frame66.jpg'
@@ -38,4 +39,4 @@ else:
 
 predictions = sess.run(output_tensors, {'import/input_1:0': infer_image})
 
-frame = post_process(infer_image[0], predictions, classes)
+yolo_eval(predictions, anchors=anchors, num_classes=80, image_shape=model_image_size)
