@@ -84,7 +84,7 @@ class YOLO(object):
         else:
             assert self.yolo_model.layers[-1].output_shape[-1] == \
                    num_anchors / len(self.yolo_model.output) * (num_classes + 5), \
-                'Mismatch between model and given anchor and class sizes'
+                   'Mismatch between model and given anchor and class sizes'
 
         print('{} model, {} anchors, and {} classes loaded.'.format(model_path, num_anchors, num_classes))
 

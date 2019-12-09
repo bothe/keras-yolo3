@@ -2,10 +2,15 @@
 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](LICENSE)
 
+
+My contributions:
+1. Make it overall easier to understand, running the scripts and test or train the models
+2. Build .pb files for TensorFlow Android usage
+3. Create inference module, easier to understand during implementation for Android in Java
+
 ## Introduction
 
 A Keras implementation of YOLOv3 (Tensorflow backend) inspired by [allanzelener/YAD2K](https://github.com/allanzelener/YAD2K).
-
 
 ---
 

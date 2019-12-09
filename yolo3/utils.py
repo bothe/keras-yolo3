@@ -20,7 +20,7 @@ def compose(*funcs):
 
 
 def letterbox_image(image, size):
-    '''resize image with unchanged aspect ratio using padding'''
+    """resize image with unchanged aspect ratio using padding"""
     iw, ih = image.size
     w, h = size
     scale = min(w / iw, h / ih)
