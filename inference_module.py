@@ -12,7 +12,7 @@ from yolo_detection_cv_utils import get_anchors, load_classes
 classes = load_classes("model_data/coco_classes.txt")
 nb_classes = len(classes)
 
-tiny_yolo = True
+tiny_yolo = False
 file = 'test_data/frame66.jpg'
 model_image_size = (416, 416)
 infer_image, org_image = read_img_infer(file, model_image_size)

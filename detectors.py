@@ -72,4 +72,7 @@ def detect_in_image(yolo):
         else:
             r_image = yolo.detect_image(image)
             r_image.show()
+            img_name = 'test_data/imgs/img_{}.png'.format(time.time())
+            plt.imsave(img_name, r_image)
+            print('Image saved {}'.format(img_name))
     yolo.close_session()

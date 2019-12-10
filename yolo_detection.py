@@ -23,6 +23,7 @@ def main():
 
 if __name__ == '__main__':
     # class YOLO defines the default value, so suppress any default here
+    # --model_path k_weights/yolov3-tiny.h5 --anchors_path model_data/tiny_yolo_anchors.txt
     parser = argparse.ArgumentParser(argument_default=argparse.SUPPRESS)
     '''
     Command line options
