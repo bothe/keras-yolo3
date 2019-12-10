@@ -61,18 +61,11 @@ def detect_in_video(yolo, video_path, output_path=""):
     yolo.close_session()
 
 
-def detect_in_image(yolo):
-    while True:
-        img = input('Input image filename:')
-        try:
-            image = Image.open(img)
-        except:
-            print('Open Error! Try again!')
-            continue
-        else:
-            r_image = yolo.detect_image(image)
-            r_image.show()
-            img_name = 'test_data/imgs/img_{}.png'.format(time.time())
-            plt.imsave(img_name, r_image)
-            print('Image saved {}'.format(img_name))
+def detect_in_image(yolo, img_path):
+    image = Image.open(img_path)
+    r_image = yolo.detect_image(image)
+    r_image.show()
+    img_name = 'test_data/imgs/img_{}.png'.format(time.time())
+    plt.imsave(img_name, r_image)
+    print('Image saved {}'.format(img_name))
     yolo.close_session()

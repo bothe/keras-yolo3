@@ -13,8 +13,10 @@ def main():
         """
         print("Image detection mode")
         if "input" in FLAGS:
-            print(" Ignoring remaining command line arguments: " + FLAGS.input + "," + FLAGS.output)
-        detect_in_image(yolo)
+            img_path = FLAGS.input
+        elif "input" not in FLAGS:
+            img_path = input('Input image filename: ')
+        detect_in_image(yolo, img_path)
     elif "input" in FLAGS:
         detect_in_video(yolo, FLAGS.input, FLAGS.output)
     else:
@@ -23,7 +25,13 @@ def main():
 
 if __name__ == '__main__':
     # class YOLO defines the default value, so suppress any default here
+    # When detecting in VIDEO
     # --model_path k_weights/yolov3-tiny.h5 --anchors_path model_data/tiny_yolo_anchors.txt
+    # --input test_data/cold_lake_trafic.mp4
+    # When detecting only in IMAGE
+    # --model_path k_weights/yolov3-tiny.h5 --anchors_path model_data/tiny_yolo_anchors.txt
+    # --image --input test_data/cold_lake_trafic.mp4
+
     parser = argparse.ArgumentParser(argument_default=argparse.SUPPRESS)
     '''
     Command line options
@@ -51,7 +59,7 @@ if __name__ == '__main__':
     '''
     Command line positional arguments -- for video detection mode
     '''
-    parser.add_argument("--input", nargs='?', type=str, required=False, default='./path2your_video',
+    parser.add_argument("--input", nargs='?', type=str, required=False,
                         help="Video input path")
 
     parser.add_argument("--output", nargs='?', type=str, default="",

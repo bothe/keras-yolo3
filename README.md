@@ -38,7 +38,7 @@ usage: yolo_detection.py [-h] [--model MODEL] [--anchors ANCHORS]
                      [--input] [--output]
 
 positional arguments:
-  --input        Video input path
+  --input        Video input path (Image input path if used with --image)
   --output       Video output path
 
 optional arguments:
@@ -49,7 +49,7 @@ optional arguments:
   --classes CLASSES  path to class definitions, default
                      model_data/coco_classes.txt
   --gpu_num GPU_NUM  Number of GPU to use, default 1
-  --image            Image detection mode, will ignore all positional arguments
+  --image            Image detection mode
 ```
 ---
 
