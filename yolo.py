@@ -46,7 +46,7 @@ class YOLO(object):
         self.class_names = self._get_class()
         self.anchors = self._get_anchors()
         self.sess = K.get_session()
-        self.boxes, self.scores, self.classes = self.generate
+        self.boxes, self.scores, self.classes, self.yolo_outputs, self.features = self.generate
 
     def _get_class(self):
         classes_path = os.path.expanduser(self.classes_path)
@@ -84,7 +84,7 @@ class YOLO(object):
         else:
             assert self.yolo_model.layers[-1].output_shape[-1] == \
                    num_anchors / len(self.yolo_model.output) * (num_classes + 5), \
-                   'Mismatch between model and given anchor and class sizes'
+                'Mismatch between model and given anchor and class sizes'
 
         print('{} model, {} anchors, and {} classes loaded.'.format(model_path, num_anchors, num_classes))
 
@@ -103,9 +103,9 @@ class YOLO(object):
         self.input_image_shape = K.placeholder(shape=(2,))
         if self.gpu_num >= 2:
             self.yolo_model = multi_gpu_model(self.yolo_model, gpus=self.gpu_num)
-        boxes, scores, classes = yolo_eval(self.yolo_model.output, self.anchors,
-                                           len(self.class_names), self.input_image_shape,
-                                           score_threshold=self.score, iou_threshold=self.iou)
+        boxes, scores, classes, yolo_outputs, features = yolo_eval(self.yolo_model.output, self.anchors,
+                                                                   len(self.class_names), self.input_image_shape,
+                                                                   score_threshold=self.score, iou_threshold=self.iou)
 
         if self.save_pb:
             # Freeze and save model to tf_model .pb file
@@ -114,7 +114,7 @@ class YOLO(object):
             tf.train.write_graph(frozen_graph, "pb_models",
                                  "{}.pb".format(self.model_path.split('/')[1].split('.')[0]), as_text=False)
 
-        return boxes, scores, classes
+        return boxes, scores, classes, yolo_outputs, features
 
     def detect_image(self, image):
         start = timer()
@@ -133,8 +133,8 @@ class YOLO(object):
         image_data /= 255.
         image_data = np.expand_dims(image_data, 0)  # Add batch dimension.
 
-        out_boxes, out_scores, out_classes = self.sess.run(
-            [self.boxes, self.scores, self.classes],
+        out_boxes, out_scores, out_classes, out_yolo_outputs, out_features = self.sess.run(
+            [self.boxes, self.scores, self.classes, self.yolo_outputs, self.features],
             feed_dict={
                 self.yolo_model.input: image_data,
                 self.input_image_shape: [image.size[1], image.size[0]],

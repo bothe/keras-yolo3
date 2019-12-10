@@ -6,8 +6,8 @@ from matplotlib import pyplot as plt
 
 from yolo_detection_cv_utils import return_boxes, draw_on_frame, load_classes
 
-net = cv2.dnn.readNet("weights/yolov3.weights", "configs/yolov3.cfg")  # Original yolov3
-# net = cv2.dnn.readNet("weights/yolov3-tiny.weights", "configs/yolov3-tiny.cfg")  # Tiny Yolo
+# net = cv2.dnn.readNet("weights/yolov3.weights", "configs/yolov3.cfg")  # Original yolov3
+net = cv2.dnn.readNet("weights/yolov3-tiny.weights", "configs/yolov3-tiny.cfg")  # Tiny Yolo
 
 classes = load_classes("model_data/coco_classes.txt")
 

@@ -7,6 +7,7 @@ Contributions to this project:
 1. Make it overall easier to understand, running the scripts and test or train the models
 2. Build .pb files for TensorFlow Android usage
 3. Create inference module, easier to understand during implementation for Android in Java
+(under-work)
 
 ## Introduction
 
