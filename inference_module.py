@@ -1,16 +1,17 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import numpy as np
 import tensorflow as tf
+from matplotlib import pyplot as plt
 
-from inference.box_predictor import post_process
 from inference.img_reader import read_img_infer
-from yolo3.model import yolo_eval
+from inference.utils import decode_netout, draw_boxes
 from yolo_detection_cv_utils import get_anchors, load_classes
 
 # Load names of classes
 classes = load_classes("model_data/coco_classes.txt")
+nb_classes = len(classes)
 anchors = get_anchors('model_data/yolo_anchors.txt')
-
 
 tiny_yolo = False
 file = 'test_data/frame66.jpg'
@@ -39,4 +40,15 @@ else:
 
 predictions = sess.run(output_tensors, {'import/input_1:0': infer_image})
 
-yolo_eval(predictions, anchors=anchors, num_classes=80, image_shape=model_image_size)
+all_boxes = []
+for prediction in predictions:
+    net_out = prediction[0]
+    n_shape = net_out.shape
+    net_out_reshaped = np.reshape(net_out, (n_shape[0], n_shape[1], 3, 5 + nb_classes))
+    boxes = decode_netout(net_out_reshaped, np.hstack(anchors), nb_classes)
+    all_boxes.extend(boxes)
+
+image = draw_boxes(org_image, all_boxes, labels=classes)
+plt.imshow(image)
+plt.show()
+print('scores')
