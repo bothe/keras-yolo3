@@ -20,4 +20,4 @@ def read_img_infer(file, model_image_size):
     infer_image /= 255.
     infer_image = np.expand_dims(infer_image, 0)  # Add batch dimension.
     print('Image shapes, org: {}, to infer: {}'.format(org_image.size, infer_image.shape))
-    return infer_image, org_image1
+    return infer_image, org_image

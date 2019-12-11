@@ -1,5 +1,76 @@
+import colorsys
+
 import cv2
 import numpy as np
+import tensorflow as tf
+from PIL import ImageDraw, ImageFont
+
+
+def draw_boxes_tf(out_boxes, out_scores, out_classes, class_names, image):
+    font = ImageFont.truetype(font='./font/FiraMono-Medium.otf',
+                              size=np.floor(3e-2 * image.size[1] + 0.5).astype('int32'))
+    thickness = (image.size[0] + image.size[1]) // 300
+
+    # Generate colors for drawing bounding boxes.
+    hsv_tuples = [(x / len(class_names), 1., 1.)
+                  for x in range(len(class_names))]
+    colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
+    colors = list(map(lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)), colors))
+    np.random.seed(10101)  # Fixed seed for consistent colors across runs.
+    np.random.shuffle(colors)  # Shuffle colors to decorrelate adjacent classes.
+    np.random.seed(None)  # Reset seed to default.
+
+    for i, c in reversed(list(enumerate(np.argmax(out_classes, axis=1)))):
+        predicted_class = class_names[c]
+        box = out_boxes[i]
+        score = out_scores[i]
+
+        label = '{} {:.2f}'.format(predicted_class, score)
+        draw = ImageDraw.Draw(image)
+        label_size = draw.textsize(label, font)
+
+        top, left, bottom, right = box
+        top = max(0, np.floor(top + 0.5).astype('int32'))
+        left = max(0, np.floor(left + 0.5).astype('int32'))
+        bottom = min(image.size[1], np.floor(bottom + 0.5).astype('int32'))
+        right = min(image.size[0], np.floor(right + 0.5).astype('int32'))
+        print(label, (left, top), (right, bottom))
+
+        if top - label_size[1] >= 0:
+            text_origin = np.array([left, top - label_size[1]])
+        else:
+            text_origin = np.array([left, top + 1])
+
+        # My kingdom for a good redistributable image drawing library.
+        for i in range(thickness):
+            draw.rectangle(
+                [left + i, top + i, right - i, bottom - i],
+                outline=colors[c])
+        draw.rectangle(
+            [tuple(text_origin), tuple(text_origin + label_size)],
+            fill=colors[c])
+        draw.text(text_origin, label, fill=(0, 0, 0), font=font)
+        del draw
+    return image
+
+
+def postprocess_boxes_tf(pred_bbox, score_threshold=.3):
+    pred_bbox = np.array(pred_bbox)
+
+    pred_xywh = pred_bbox[:, 0:4]
+    pred_conf = pred_bbox[:, 4]
+    pred_prob = pred_bbox[:, 5:]
+
+    mask = pred_conf >= score_threshold
+    boxes_ = []
+    scores_ = []
+    classes_ = []
+    for i in range(len(pred_bbox)):
+        if mask[i]:
+            boxes_.append(pred_xywh[i])
+            scores_.append(pred_conf[i])
+            classes_.append(pred_prob[i])
+    return boxes_, scores_, classes_
 
 
 def decode_netout(netout, anchors, nb_class, obj_threshold=0.3, nms_threshold=0.3):

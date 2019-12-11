@@ -6,7 +6,7 @@ from PIL.Image import fromarray
 from matplotlib import pyplot as plt
 
 from inference.img_reader import read_img_infer
-from inference.utils import decode_netout, draw_boxes
+from inference.utils import decode_netout, draw_boxes, postprocess_boxes_tf, draw_boxes_tf
 from utils.utils import postprocess_boxes, nms, draw_bbox
 from yolo3.model import yolo_boxes_and_scores
 from yolo_detection_cv_utils import get_anchors, load_classes
@@ -19,7 +19,7 @@ tiny_yolo = False
 file = 'test_data/frame66.jpg'
 model_image_size = (416, 416)
 infer_image, org_image = read_img_infer(file, model_image_size)
-org_image_shape = (org_image.shape[0], org_image.shape[1])
+org_image_shape = (org_image.size[0], org_image.size[1])
 
 if tiny_yolo:
     f = tf.gfile.GFile("pb_models/yolov3-tiny.pb", 'rb')
@@ -63,7 +63,11 @@ for l in range(num_layers):
                                                model_image_size, org_image_shape))
     boxes = np.concatenate([x[0], np.reshape(x[2][0], (n_shape[1]*n_shape[1]*3, 1)), x[1]], axis=1)
     all_boxes.extend(boxes)
+boxes_, scores_, classes_ = postprocess_boxes_tf(all_boxes, score_threshold=.3)
+image = draw_boxes_tf(boxes_, scores_, classes_, classes, org_image)
+image.show()
 
+#########################################################################################################
 bboxes = postprocess_boxes(all_boxes, org_image, model_image_size[0], 0.3)
 bboxes = nms(bboxes, 0.45, method='nms')
 image = draw_bbox(org_image, bboxes, classes)
