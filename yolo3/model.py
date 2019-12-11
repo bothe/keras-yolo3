@@ -154,7 +154,7 @@ def yolo_head(feats, anchors, num_classes, input_shape, calc_loss=False):
 
     if calc_loss:
         return grid, feats, box_xy, box_wh
-    return box_xy, box_wh, box_confidence, box_class_probs, feats
+    return box_xy, box_wh, box_confidence, box_class_probs
 
 
 def yolo_correct_boxes(box_xy, box_wh, input_shape, image_shape):
@@ -185,13 +185,13 @@ def yolo_correct_boxes(box_xy, box_wh, input_shape, image_shape):
 
 def yolo_boxes_and_scores(feats, anchors, num_classes, input_shape, image_shape):
     """Process Conv layer output"""
-    box_xy, box_wh, box_confidence, box_class_probs, features = yolo_head(feats,
+    box_xy, box_wh, box_confidence, box_class_probs = yolo_head(feats,
                                                                 anchors, num_classes, input_shape)
     boxes = yolo_correct_boxes(box_xy, box_wh, input_shape, image_shape)
     boxes = K.reshape(boxes, [-1, 4])
     box_scores = box_confidence * box_class_probs
     box_scores = K.reshape(box_scores, [-1, num_classes])
-    return boxes, box_scores, features
+    return boxes, box_scores, box_confidence
 
 
 def yolo_eval(yolo_outputs,
@@ -208,8 +208,8 @@ def yolo_eval(yolo_outputs,
     boxes = []
     box_scores = []
     for l in range(num_layers):
-        _boxes, _box_scores, features = yolo_boxes_and_scores(yolo_outputs[l], anchors[anchor_mask[l]],
-                                                              num_classes, input_shape, image_shape)
+        _boxes, _box_scores, box_confidence = yolo_boxes_and_scores(yolo_outputs[l], anchors[anchor_mask[l]],
+                                                                    num_classes, input_shape, image_shape)
         boxes.append(_boxes)
         box_scores.append(_box_scores)
     boxes = K.concatenate(boxes, axis=0)
@@ -236,7 +236,7 @@ def yolo_eval(yolo_outputs,
     scores_ = K.concatenate(scores_, axis=0)
     classes_ = K.concatenate(classes_, axis=0)
 
-    return boxes_, scores_, classes_, yolo_outputs, features
+    return boxes_, scores_, classes_, yolo_outputs, box_confidence
 
 
 def preprocess_true_boxes(true_boxes, input_shape, anchors, num_classes):
