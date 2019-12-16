@@ -6,6 +6,7 @@ from yolo import YOLO
 
 def main():
     if FLAGS.save_pb:
+        print("respective pb model file saved in pb_models")
         return
     if FLAGS.image:
         """
@@ -46,7 +47,7 @@ if __name__ == '__main__':
                         help='path to class definitions, default ' + YOLO.get_defaults("classes_path"))
 
     parser.add_argument('--gpu_num', type=int,
-                        help='Number of GPU to use, default ' + str(YOLO.get_defaults("gpu_num")))
+                        help='Number of GPUs to use, default ' + str(YOLO.get_defaults("gpu_num")))
 
     parser.add_argument('--print_summary', type=bool, default=False,
                         help='Print summary of the models, default ' + str(YOLO.get_defaults("print_summary")))
@@ -55,12 +56,12 @@ if __name__ == '__main__':
                         help='Save the tf model in pb format, default ' + str(YOLO.get_defaults("save_pb")))
 
     parser.add_argument('--image', default=False, action="store_true",
-                        help='Image detection mode, will ignore all positional arguments')
+                        help='Image detection mode.')
     '''
     Command line positional arguments -- for video detection mode
     '''
     parser.add_argument("--input", nargs='?', type=str, required=False,
-                        help="Video input path")
+                        help="Video or Image (if with --image) input path")
 
     parser.add_argument("--output", nargs='?', type=str, default="",
                         help="[Optional] Video output path")
