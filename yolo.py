@@ -22,7 +22,7 @@ from yolo3.utils import letterbox_image
 
 class YOLO(object):
     _defaults = {
-        "model_path": 'k_weights/yolo.h5',
+        "model_path": 'weights/yolo.h5',
         "anchors_path": 'model_data/yolo_anchors.txt',
         "classes_path": 'model_data/coco_classes.txt',
         "score": 0.3,
@@ -46,6 +46,7 @@ class YOLO(object):
         self.class_names = self._get_class()
         self.anchors = self._get_anchors()
         self.sess = K.get_session()
+        self.model_name = self.model_path.split('/')[1].split('.')[0]
         self.boxes, self.scores, self.classes, self.yolo_outputs, self.features = self.generate
 
     def _get_class(self):
@@ -75,18 +76,20 @@ class YOLO(object):
             self.yolo_model = load_model(model_path, compile=False)
             if self.print_summary:
                 self.yolo_model.summary(line_length=150)
-        except:
+        except FileNotFoundError:
             self.yolo_model = tiny_yolo_body(Input(shape=(None, None, 3)), num_anchors // 2, num_classes) \
                 if is_tiny_version else yolo_body(Input(shape=(None, None, 3)), num_anchors // 3, num_classes)
             self.yolo_model.load_weights(self.model_path)  # make sure model, anchors and classes match
             if self.print_summary:
                 self.yolo_model.summary(line_length=150)
         else:
-            assert self.yolo_model.layers[-1].output_shape[-1] == \
-                   num_anchors / len(self.yolo_model.output) * (num_classes + 5), \
+            from_model_layers = self.yolo_model.layers[-1].output_shape[-1]
+            from_computed_number = num_anchors / len(self.yolo_model.output) * (num_classes + 5)
+            assert from_model_layers == from_computed_number, \
                 'Mismatch between model and given anchor and class sizes'
-
-        print('{} model, {} anchors, and {} classes loaded.'.format(model_path, num_anchors, num_classes))
+        from_model_layers = len(self.yolo_model.output)
+        print('{} model with {} output layers, {} anchors, and {} classes loaded.'.format(model_path, from_model_layers,
+                                                                                          num_anchors, num_classes))
 
         # Generate colors for drawing bounding boxes.
         hsv_tuples = [(x / len(self.class_names), 1., 1.)
@@ -106,13 +109,12 @@ class YOLO(object):
         boxes, scores, classes, yolo_outputs, features = yolo_eval(self.yolo_model.output, self.anchors,
                                                                    len(self.class_names), self.input_image_shape,
                                                                    score_threshold=self.score, iou_threshold=self.iou)
-
         if self.save_pb:
             # Freeze and save model to tf_model .pb file
             frozen_graph = freeze_session(K.get_session(),
                                           output_names=[out.op.name for out in self.yolo_model.outputs])
             tf.train.write_graph(frozen_graph, "pb_models",
-                                 "{}.pb".format(self.model_path.split('/')[1].split('.')[0]), as_text=False)
+                                 "{}.pb".format(self.model_name), as_text=False)
 
         return boxes, scores, classes, yolo_outputs, features
 
@@ -180,8 +182,8 @@ class YOLO(object):
             del draw
 
         end = timer()
-        print(end - start)
-        return image
+        print('Time to label this image: {} second'.format(np.round(end - start, 3)))
+        return image, self.model_name
 
     def close_session(self):
         self.sess.close()

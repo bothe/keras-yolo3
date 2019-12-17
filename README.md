@@ -24,8 +24,9 @@ A Keras implementation of YOLOv3 (Tensorflow backend) inspired by [allanzelener/
 ```
 wget https://pjreddie.com/media/files/yolov3.weights
 python convert.py yolov3.cfg yolov3.weights model_data/yolo.h5
-python yolo_detection.py [OPTIONS...] --image, for image detection mode, OR
-python yolo_detection.py [video_path] [output_path (optional)]
+python yolo_detection.py [OPTIONS...] --input [image_path] --image, for image detection mode, OR
+python yolo_detection.py [OPTIONS...] --input [video_path] [output_path (optional)]
+as your video will be stored at the same location as of original with name video_path_labeled_video
 ```
 
 For Tiny YOLOv3, just do in a similar way, just specify model path and anchor path with `--model model_file` and `--anchors anchor_file`.
@@ -33,23 +34,30 @@ For Tiny YOLOv3, just do in a similar way, just specify model path and anchor pa
 ### Usage
 Use --help to see usage of yolo_detection.py:
 ```
-usage: yolo_detection.py [-h] [--model MODEL] [--anchors ANCHORS]
-                     [--classes CLASSES] [--gpu_num GPU_NUM] [--image]
-                     [--input] [--output]
-
-positional arguments:
-  --input        Video input path (Image input path if used with --image)
-  --output       Video output path
+usage: yolo_detection.py [-h] [--model_path MODEL_PATH]
+                         [--anchors_path ANCHORS_PATH]
+                         [--classes_path CLASSES_PATH] [--gpu_num GPU_NUM]
+                         [--print_summary PRINT_SUMMARY] [--save_pb SAVE_PB]
+                         [--image] [--input [INPUT]] [--output [OUTPUT]]
 
 optional arguments:
-  -h, --help         show this help message and exit
-  --model MODEL      path to model weight file, default model_data/yolo.h5
-  --anchors ANCHORS  path to anchor definitions, default
-                     model_data/yolo_anchors.txt
-  --classes CLASSES  path to class definitions, default
-                     model_data/coco_classes.txt
-  --gpu_num GPU_NUM  Number of GPU to use, default 1
-  --image            Image detection mode
+  -h, --help            show this help message and exit
+  --model_path MODEL_PATH
+                        path to model weight file, default weights/yolo.h5
+  --anchors_path ANCHORS_PATH
+                        path to anchor definitions, default
+                        model_data/yolo_anchors.txt
+  --classes_path CLASSES_PATH
+                        path to class definitions, default
+                        model_data/coco_classes.txt
+  --gpu_num GPU_NUM     Number of GPUs to use, default 1
+  --print_summary PRINT_SUMMARY
+                        Print summary of the models, default False
+  --save_pb SAVE_PB     Save the tf model in pb format, default False
+  --image               Image detection mode.
+  --input [INPUT]       Video or Image (if with --image) input path
+  --output [OUTPUT]     [Optional] Video output path (currently output frames
+                        are being stored in test_data directory)
 ```
 ---
 

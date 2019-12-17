@@ -64,7 +64,8 @@ if __name__ == '__main__':
                         help="Video or Image (if with --image) input path")
 
     parser.add_argument("--output", nargs='?', type=str, default="",
-                        help="[Optional] Video output path")
+                        help="[Optional] Video output path (currently output frames are being stored in "
+                             "test_data/imgs directory)")
 
     FLAGS = parser.parse_args()
     yolo = YOLO(**vars(FLAGS))
