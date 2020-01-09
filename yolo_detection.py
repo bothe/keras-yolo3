@@ -1,7 +1,7 @@
 import argparse
 
 from detectors import detect_in_video, detect_in_image
-from yolo import YOLO
+from yolo3.yolo import YOLO
 
 
 def main():
